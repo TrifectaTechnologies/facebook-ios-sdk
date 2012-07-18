@@ -40,6 +40,7 @@
     FBRequest *_requestExtendingAccessToken;
     NSDate* _lastAccessTokenUpdate;
     FBFrictionlessRequestSettings* _frictionlessRequestSettings;
+    BOOL suppressDialog; // modification to hide popup
 }
 
 @property(nonatomic, copy) NSString* accessToken;
@@ -48,6 +49,7 @@
 @property(nonatomic, copy) NSString* urlSchemeSuffix;
 @property(nonatomic, readonly, getter=isFrictionlessRequestsEnabled) 
     BOOL isFrictionlessRequestsEnabled;
+@property(nonatomic, readwrite) BOOL suppressDialog;
 
 - (id)initWithAppId:(NSString *)appId
         andDelegate:(id<FBSessionDelegate>)delegate;

@@ -60,6 +60,8 @@ static void *finishedContext = @"finishedContext";
                permissions = _permissions,
            urlSchemeSuffix = _urlSchemeSuffix,
                      appId = _appId;
+            
+@synthesize suppressDialog;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,6 +71,7 @@ static void *finishedContext = @"finishedContext";
 - (id)initWithAppId:(NSString *)appId
         andDelegate:(id<FBSessionDelegate>)delegate {
   self = [self initWithAppId:appId urlSchemeSuffix:nil andDelegate:delegate];
+    self.suppressDialog = NO;
   return self;
 }
 
@@ -246,7 +249,9 @@ static void *finishedContext = @"finishedContext";
     // This minimizes the chance that the user will have to enter his or
     // her credentials in order to authorize the application.
     BOOL didOpenOtherApp = NO;
-    UIDevice *device = [UIDevice currentDevice];
+    
+
+    /**UIDevice *device = [UIDevice currentDevice];
     if ([device respondsToSelector:@selector(isMultitaskingSupported)] && [device isMultitaskingSupported]) {
         if (tryFBAppAuth) {
             NSString *scheme = kFBAppAuthURLScheme;
@@ -265,7 +270,7 @@ static void *finishedContext = @"finishedContext";
             NSString *fbAppUrl = [FBRequest serializeURL:loginDialogURL params:params];
             didOpenOtherApp = [[UIApplication sharedApplication] openURL:[NSURL URLWithString:fbAppUrl]];
         }
-    }
+    }**/
     
     // If single sign-on failed, open an inline login dialog. This will require the user to
     // enter his or her credentials.
@@ -274,7 +279,11 @@ static void *finishedContext = @"finishedContext";
         _loginDialog = [[FBLoginDialog alloc] initWithURL:loginDialogURL
                                               loginParams:params
                                                  delegate:self];
-        [_loginDialog show];
+        if (suppressDialog) {
+            [_loginDialog setHidden:YES];
+        }
+            [_loginDialog show];
+
     }
 }
 
@@ -329,9 +338,10 @@ static void *finishedContext = @"finishedContext";
  *            the user has logged in.
  */
 - (void)authorize:(NSArray *)permissions {
-    self.permissions = permissions;
+	[self setValue:permissions forKey:@"permissions"];
     
-    [self authorizeWithFBAppAuth:YES safariAuth:YES];
+	[self authorizeWithFBAppAuth:NO safariAuth:NO];
+    
 }
 
 /**
